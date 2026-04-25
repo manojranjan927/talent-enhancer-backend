@@ -30,14 +30,13 @@ app.post("/send-otp", async (req, res) => {
     await axios.post(
       `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`,
       {
-        messaging_product: "whatsapp",
-        to: "91" + mobile,
-        type: "template",
-template: {
-  name: "hello_world",
-  language: { code: "en_US" }
+  messaging_product: "whatsapp",
+  to: "91" + mobile,
+  type: "text",
+  text: {
+    body: `Your OTP is ${otp}`,
+  },
 }
-      },
       {
         headers: {
           Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
