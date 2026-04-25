@@ -32,10 +32,11 @@ app.post("/send-otp", async (req, res) => {
       {
         messaging_product: "whatsapp",
         to: "91" + mobile,
-        type: "text",
-        text: {
-          body: `Your OTP is ${otp}`,
-        },
+        type: "template",
+template: {
+  name: "hello_world",
+  language: { code: "en_US" }
+}
       },
       {
         headers: {
