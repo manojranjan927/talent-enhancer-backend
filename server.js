@@ -17,7 +17,7 @@ app.post("/send-otp", async (req, res) => {
   const { mobile } = req.body;
 
   if (!mobile) {
-    return res.json({ success: false, error: "Mobile required" });
+    return res.json({ success: false });
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -44,10 +44,10 @@ app.post("/send-otp", async (req, res) => {
       }
     );
 
-    res.json({ success: true, otp, mode: "TEXT_OTP" });
+    res.json({ success: true });
   } catch (err) {
     console.log(err.response?.data || err.message);
-    res.json({ success: false, error: "Failed to send OTP" });
+    res.json({ success: false });
   }
 });
 
