@@ -1,38 +1,41 @@
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const axios = require("axios");
+require("dotenv").config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const otpStore = {}; // mobile → otp
+// test route
+app.get("/", (req, res) => {
+  res.send("Talent Enhancer Backend Running");
+});
 
-// ✅ SEND OTP
+const otpStore = {};
+
+// SEND OTP
 app.post("/send-otp", async (req, res) => {
   const { mobile } = req.body;
 
-  if (!mobile) {
-    return res.status(400).json({ error: "Mobile required" });
-  }
+  if (!mobile) return res.json({ success: false });
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   otpStore[mobile] = otp;
 
+  console.log("OTP:", otp);
+
   try {
-    const metaResponse = await axios.post(
-      `https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER_ID}/messages`,
+    const axios = require("axios");
+
+    await axios.post(
+      `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`,
       {
         messaging_product: "whatsapp",
-        to: `91${mobile}`,
-        type: "template",
-template: {
-  name: "hello_world",
-  language: {
-    code: "en_US",
-  },
-},
+        to: "91" + mobile,
+        type: "text",
+        text: {
+          body: `Your OTP is ${otp}`,
+        },
       },
       {
         headers: {
@@ -42,26 +45,27 @@ template: {
       }
     );
 
-    console.log("Meta response:", metaResponse.data);
     res.json({ success: true });
   } catch (err) {
     console.log(err.response?.data || err.message);
-    res.status(500).json({ error: "Failed to send OTP" });
+    res.json({ success: false });
   }
 });
 
-// ✅ VERIFY OTP
+// VERIFY OTP
 app.post("/verify-otp", (req, res) => {
   const { mobile, otp } = req.body;
 
   if (otpStore[mobile] === otp) {
     delete otpStore[mobile];
     return res.json({ success: true });
+  } else {
+    return res.json({ success: false });
   }
-
-  res.status(400).json({ error: "Invalid OTP" });
 });
 
-app.listen(process.env.PORT, () => {
-  console.log("Server running on port", process.env.PORT);
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("Server running on port", PORT);
 });
